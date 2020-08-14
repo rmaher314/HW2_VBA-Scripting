@@ -1,0 +1,115 @@
+Sub Ticker_Counter()
+
+Dim ws As Worksheet
+Dim Worksheet As String
+Dim Ticker As String
+Dim Year_Date As Date
+Dim Open_Rate As Double
+Dim High_Rate As Double
+Dim Low_Rate As Double
+Dim Close_Rate As Double
+Dim Volume As Double
+Dim Yearly_Change As Double
+Dim Total_Stock_Volume As Double
+Dim Start_Of_Open As Long
+
+' Set up for each worksheet
+For Each ws In Worksheets
+
+
+'Set the Column Headers
+ws.Cells(1, 9).Value = "Ticker"
+ws.Cells(1, 10).Value = "Yearly_Change"
+ws.Cells(1, 11).Value = "Percentage_Change"
+ws.Cells(1, 12).Value = "Total_Stock_Volume"
+Row_Count = Cells(Rows.Count, "A").End(xlUp).Row
+
+' Set an initial variable
+Yearly_Change = 0
+Total_Stock_Volume = 0
+
+' Set up Summary Table Parameters and Start Row
+Dim Summary_Table_Row As Integer
+Summary_Table_Row = 2
+Start_Of_Open = 2
+
+  ' Loop through all tickers
+    For i = 2 To Row_Count
+ 
+    ' Check if we are still within the same Ticker symbol if it is not...
+    If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+                    
+        ' Set the Ticker name
+        Ticker = ws.Cells(i, 1).Value
+       
+        ' Fix Yearly Change Add to the Ticker Total
+        Close_Rate = ws.Cells(i, 6).Value
+        
+        Open_Rate = ws.Cells(Start_Of_Open, 3).Value
+        
+        ' Calculate Yearly Change
+        Yearly_Change = Close_Rate - Open_Rate
+
+        ' Print the Ticker in the Summary Table
+        ws.Range("I" & Summary_Table_Row).Value = Ticker
+
+        ' Print the Yearly Change to the Summary Table
+         ws.Range("J" & Summary_Table_Row).Value = Yearly_Change
+              
+         
+         'year_open = ws.Cells(I, 3).Value
+         'year_close = ws.Cells(I, 6).Value
+
+         ' Yearly_Change = Close_Rate - Open_Rate
+         '  percent_change = (Close_Rate - Open_Rate) / Close_Rate
+
+      'Add the Percentage Change
+        If Close_Rate <> 0 Then
+           Percentage_Change = (Close_Rate - Open_Rate) / Close_Rate
+        End If
+        
+        ws.Columns("K").NumberFormat = "0.00%"
+        ws.Range("K" & Summary_Table_Row).Value = Percentage_Change
+        
+      
+      'Add Stock Volumn- Get the average of each volume's ticker
+        Total_Stock_Volume = Total_Stock_Volume + ws.Cells(i, 7).Value
+        ws.Range("L" & Summary_Table_Row).Value = Total_Stock_Volume
+        Total_Stock_Volume = 0
+              
+            
+       '  Change the color of the cell based on
+        If (Yearly_Change > 0) Then
+            ws.Cells(Summary_Table_Row, 10).Interior.ColorIndex = 4
+        ElseIf (Yearly_Change < 0) Then
+            ws.Cells(Summary_Table_Row, 10).Interior.ColorIndex = 3
+        Else
+            ws.Cells(Summary_Table_Row, 10).Interior.ColorIndex = 0
+        End If
+        Summary_Table_Row = Summary_Table_Row + 1
+        
+        ' Reset the Variables
+        Yearly_Change = 0
+        Percentage_Change = 0
+        Open_Rate = 0
+   
+    ' If the cell immediately following a row is the same brand...
+    Else
+
+      ' Add to the Total Stock Volume
+       Total_Stock_Volume = Total_Stock_Volume + ws.Cells(i, 7).Value
+
+    
+   End If
+
+  
+ Next i
+ 
+  Total_Stock_Volume = 0
+  
+ 
+Next ws
+ 
+
+
+End Sub
